@@ -9,6 +9,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.green.BoardApplication;
 import com.green.board.dto.BoardDto;
+import com.green.config.WebMvcConfig;
 import com.green.interceptor.AuthInterceptor;
 import com.green.menus.dto.MenuDTO;
 import com.green.menus.mapper.MenuMapper;
@@ -20,11 +21,18 @@ import com.green.paging.mapper.BoardPagingMapper;
 @RequestMapping("/BoardPaging")
 public class BoardPagingController {
 
+    private final WebMvcConfig webMvcConfig;
+
 	@Autowired
 	private  MenuMapper         menuMapper;
 	
 	@Autowired
 	private  BoardPagingMapper  boardPagingMapper;
+
+
+    BoardPagingController(WebMvcConfig webMvcConfig) {
+        this.webMvcConfig = webMvcConfig;
+    }
 
   
 	// /BoardPaging/List?menu_id=MENU01&nowpage=1
@@ -80,6 +88,30 @@ public class BoardPagingController {
 		return  mv;		
 	}
 	
+	// /BoardPaging/View?idx=2608&menu_id=MENU01&nowpage=1
+	@RequestMapping("/View")
+	public ModelAndView view(BoardDto boardDto, int nowpage) {
+		
+		// 메뉴목록 조회
+		List<MenuDTO> menuList = menuMapper.getMenuList();
+		
+		// idx로 조회한 게시글 한 개 조회
+		BoardDto  board = boardPagingMapper.getBoard( boardDto );
+		
+		String  menu_id = boardDto.getMenu_id();
+		
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("boardpaging/view");
+		mv.addObject("menuList", menuList);
+		
+		mv.addObject("menu_id", menu_id);
+		mv.addObject("nowpage", nowpage);
+		
+		mv.addObject("board", board);
+		
+		
+		return mv;
+	}
 	// /BoardPaging/WriteForm?menu_id=MENU01&nowpage=1
 	
 }
