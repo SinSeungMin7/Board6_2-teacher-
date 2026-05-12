@@ -23,9 +23,9 @@ public class SearchDto {
     
     // 기본생성자 : 초기값을 설정 
 	public   SearchDto() {
-		this.pageNo     =  1;
-		this.numOfRows  =  10;
-		this.pageSize   =  10;
+		this.pageNo     =  1;       // 현재페이지 정보
+		this.numOfRows  =  10;     // 목록에서 보여지는 갯수 10개
+		this.pageSize   =  10;     // 
 	}
 	
 	// 메소드 추가

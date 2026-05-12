@@ -98,7 +98,7 @@
 	    <tr>
 	      <td> ${  board.idx      }  </td>    <!-- menu.getMenu_id() -->
 	      <td class="title"> 
-	        <a href ="/Board/View?idx=${board.idx}&menu_id=${menu_id}">
+	        <a href ="/BoardPaging/View?idx=${board.idx}&menu_id=${menu_id}">
 	        ${ board.title    }
 	        </a>  
 	      </td>
@@ -107,7 +107,7 @@
 	      <td> ${ board.hit      }  </td>
 	    </tr>
 	    </c:forEach>
-	  </table>	
+	  </table>	 
 	  
 	  
 	  <form action="/BoardPaging/List" method="get">

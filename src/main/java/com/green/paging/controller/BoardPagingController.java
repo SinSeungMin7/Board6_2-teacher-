@@ -32,11 +32,11 @@ public class BoardPagingController {
 	public  ModelAndView   list( BoardDto boardDto, int nowpage, 
 			String  searchType, String keyword ) {
 		
-		// 천체메뉴목록 : menus.jsp 용
+		// 전체메뉴목록 : menus.jsp 용
 		List<MenuDTO>  menuList =  menuMapper.getMenuList();
 		
 		// 게시물 목록 조회(페이징해서)
-		// 해당 메뉴의 자료갯수 : 
+		// 해당 메뉴의 자료갯수 : 조회가 된
 		int            totalCount   
             =  boardPagingMapper.count( boardDto, searchType, keyword );  // menu_id
 		System.out.println("totalCount:" + totalCount);
