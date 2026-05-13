@@ -196,8 +196,10 @@ public class UserController {
 		
 		HttpSession  session  =  request.getSession();
 		session.setAttribute("login", user);
+
+		String       loc      = session.getAttribute("loc") + "";  // + "" : 앞에있는것을 문자열로 바꿔주는 방법이다(에러를 없애주는 얇팍한 방법)	
 		
-		return  "redirect:/Board/List?menu_id=MENU01";
+		return  "redirect:" + loc;
 		
 	}
 	
