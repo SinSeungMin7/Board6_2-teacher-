@@ -1,11 +1,15 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+    
+    <%@taglib  prefix="c"  uri="jakarta.tags.core"%>
+    
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <link rel="shortcut icon" href="/img/favicon2.png" type="image/x-icon">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 <link href="/css/common.css" rel="stylesheet" />
 </head>
 <body>
@@ -32,13 +36,40 @@
     <div>&nbsp;</div>
     
     <div>
-      ${ sessionScope.login.username } 님 환영합니다<br>
-      당신의 가입일은 ${ sessionScope.login.regdate } 입니다<br>
-      <a href="/Users/Logout">로그아웃</a><br>
-      <a href="/Users/LoginForm">로그인</a>
+      ${sessionScope.login.username} 님 환영합니다<br>
+      당신의 가입일은 ${sessionScope.login.regdate} 입니다<br>
+      <c:choose>
+      	<c:when test="${sessionScope.login ne null}">
+      	<a href="/Users/Logout">로그아웃</a><br>
+      	</c:when>
+      	<c:otherwise>
+      	<a href="/Users/LoginForm">로그인</a>
+      	</c:otherwise>
+      </c:choose>
     </div>
     
+    <div>
+    <input type="text" id="num" value="1"/>
+    <a id="btnNate" href="https://www.nate.com" class="btn btn-primary">click</a>
+    </div>
+    
+    
   </main>
+  
+  <script>
+  	const  btnNateEl  = document.querySelector('#btnNate')
+  	const  numEl  = document.querySelector('#num')
+  	btnNateEl.onclick = function(e) {
+  		
+				e.preventDefault()   // 기본에빈트 취소
+				e.stopPropagation()
+				if( numEl.value == "2")
+					location.href = this.href // this.gref == e.target.href
+			
+  			
+  		// msgEl.innerHTML = '<h2>하하하</h2>'
+  	}
+  </script>
   
 </body>
 </html>

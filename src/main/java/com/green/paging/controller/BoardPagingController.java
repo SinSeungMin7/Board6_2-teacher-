@@ -36,15 +36,17 @@ public class BoardPagingController {
 
   
 	// /BoardPaging/List?menu_id=MENU01&nowpage=1
+	// /BoardPaging/List?menu_id=MENU01&nowpage=3&searchType=&keyword=
+	// /BoardPaging/List?menu_id=MENU01&nowpage=3&searchType=title&keyword=11
 	@RequestMapping("/List")
 	public  ModelAndView   list( BoardDto boardDto, int nowpage, 
-			String  searchType, String keyword ) {
+			String  searchType, String keyword ) {  
 		
 		// 전체메뉴목록 : menus.jsp 용
 		List<MenuDTO>  menuList =  menuMapper.getMenuList();
 		
 		// 게시물 목록 조회(페이징해서)
-		// 해당 메뉴의 자료갯수 : 조회가 된
+		// 해당 메뉴의 자료갯수 : 조회된 
 		int            totalCount   
             =  boardPagingMapper.count( boardDto, searchType, keyword );  // menu_id
 		System.out.println("totalCount:" + totalCount);
@@ -55,7 +57,6 @@ public class BoardPagingController {
 		searchDto.setNumOfRows(10);      // 한페이지에 출력될 자료수
 		searchDto.setPageSize(10);       
 		  // paging.jsp 에 한줄에 출력될 페이지 번호 수 : 처음 이전 1 2 3 ... 10 다음 마지막
-				
 		
 		// Pagination 설정
 		Pagination   pagination  =  new Pagination(totalCount, searchDto);
@@ -88,24 +89,112 @@ public class BoardPagingController {
 		return  mv;		
 	}
 	
-	// /BoardPaging/View?idx=2608&menu_id=MENU01&nowpage=1
+	// /BoardPaging/View?idx=208&menu_id=MENU01&nowpage=1
 	@RequestMapping("/View")
-	public ModelAndView view(BoardDto boardDto, int nowpage) {
+	public   ModelAndView   view( BoardDto boardDto, int nowpage  ) {
 		
 		// 메뉴목록 조회
-		List<MenuDTO> menuList = menuMapper.getMenuList();
-		System.out.println("1:" + menuList);
+		List<MenuDTO>  menuList  =  menuMapper.getMenuList();
 		
 		// idx 에 해당하는 게시글 조회수 1증가
 		boardPagingMapper.incHit( boardDto );
 		
-		// idx로 조회한 게시글 한 개 조회
-		BoardDto  board = boardPagingMapper.getBoard( boardDto );
+		// idx 로 게시글 한 개 조회
+		BoardDto  board   =  boardPagingMapper.getBoard( boardDto  );
 		
-		String  menu_id = boardDto.getMenu_id();
+		// 조회된 content 의 "\n" -> "<br>"
+		String  content = board.getContent();
+		if(content != null)
+			board.setContent(content.replace("\n", "<br>"));
 		
-		ModelAndView mv = new ModelAndView();
+		String  menu_id   =  boardDto.getMenu_id();		
+		ModelAndView  mv  =  new ModelAndView();
 		mv.setViewName("boardpaging/view");
+		mv.addObject("menuList", menuList );
+		
+		mv.addObject("menu_id",  menu_id  );
+		mv.addObject("nowpage",  nowpage  );
+		
+		mv.addObject("board",    board );
+			
+		return  mv;
+	}
+	
+	// /BoardPaging/WriteForm?menu_id=MENU01&nowpage=1
+	@RequestMapping("/WriteForm")
+	public  ModelAndView  writeForm(BoardDto boardDto, int nowpage) {
+		
+		// 메뉴 목록 조회
+		List<MenuDTO>  menuList  =  menuMapper.getMenuList();  
+		// System.out.println("1:" + menuList);
+		
+		
+		String     menu_id       =  boardDto.getMenu_id();
+		ModelAndView   mv        =  new ModelAndView();
+		mv.setViewName("boardpaging/write");
+		mv.addObject("menuList", menuList);
+		mv.addObject("menu_id",  menu_id );
+		mv.addObject("nowpage",  nowpage );
+	
+		
+		return  mv;
+		
+	}
+	
+	// /BoardPaging/Write
+	// 넘어온 값들
+	//   db 저장 : menu_id=MENU01, title=제목, writer=admin, content=내용,
+	//   돌아가기위해 필요한 변수 : menu_id=MENU01, nowpage=1
+	@RequestMapping("/Write")
+	public  ModelAndView  write( BoardDto boardDto, int nowpage ) {
+		
+		// 새글 저장 -> db 저장
+		boardPagingMapper.insertBoard(  boardDto  );		
+		
+		// 목록으로 돌아가기
+		String   menu_id     =  boardDto.getMenu_id();				
+		ModelAndView  mv     =  new ModelAndView();
+		String        fmt    =  "redirect:/BoardPaging/List?menu_id=%s&nowpage=%d"; 
+		String        loc    =  String.format(fmt, menu_id, 1 );
+		mv.setViewName( loc  );
+		return        mv;
+		
+	}
+	
+	// /BoardPaging/Delete?idx=207&menu_id=MENU01&nowpage=1
+	@RequestMapping("/Delete")
+	public  ModelAndView   delete( BoardDto boardDto, int nowpage  ) {
+		
+		// idx 로 board 삭제
+		boardPagingMapper.deleteBoard( boardDto  );
+		
+		// 삭제후 목록으로 이동
+		String        menu_id  =  boardDto.getMenu_id(); 
+		ModelAndView  mv       =  new ModelAndView();
+		String        loc      =  """
+				redirect:/BoardPaging/List?menu_id=%s&nowpage=%d
+				""".formatted(menu_id, nowpage);		
+		mv.setViewName( loc );		
+		return   mv;
+		
+	}
+	
+	// 게시글 수정 
+	// /BoardPaging/UpdateForm?idx=4811&menu_id=MENU01&nowpage=1
+	@RequestMapping("/UpdateForm")
+	public ModelAndView updateForm(BoardDto boardDto, int nowpage) {
+
+		// 메뉴 목록조회
+		List<MenuDTO> menuList = menuMapper.getMenuList();
+		
+		// 수정할 페이지에 출력할 자료를 idx 로 조회
+		BoardDto  board = boardPagingMapper.getBoard(boardDto); 
+		
+		// 수정할 페이지로 이동
+		String  menu_id = boardDto.getMenu_id();
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("boardpaging/update");
+		
 		mv.addObject("menuList", menuList);
 		
 		mv.addObject("menu_id", menu_id);
@@ -113,44 +202,43 @@ public class BoardPagingController {
 		
 		mv.addObject("board", board);
 		
-		
-		return mv;
-	}
-	// /BoardPaging/WriteForm?menu_id=MENU01&nowpage=1
-	@RequestMapping("WriteForm")
-	public ModelAndView wirteForm(BoardDto boardDto, int nowpage ) {
-		
-		// 메뉴 목록 조회
-		List<MenuDTO> menuList = menuMapper.getMenuList();
-		// System.out.println("1:" + menuList);
-		
-		String  menu_id = boardDto.getMenu_id();
-		ModelAndView mv = new ModelAndView();
-		mv.setViewName("boardpaging/write");
-		mv.addObject("menuList", menuList);
-		mv.addObject("menu_id", menu_id);
-		mv.addObject("nowpage", nowpage);
 		return mv;
 	}
 	
-	// /BoardPaging/Write
-	// 넘어온 값들
-	// DB 저장 : /menu_id=MENU01, title=제목, writer=작성자=admin(로그인된 아이디), content=내용
-	// 돌아가기위해 필요한 변수 :  menu_id=MENU01, nowpage=1
-	@RequestMapping("Write")
-	public ModelAndView write(BoardDto boardDto, int nowpage) {
+	// 수정
+	// /BoardPaging/Update
+	// idx=809&title=aaaa&content=aaaa     &menu_id=MENU01&nowpage=1
+	@RequestMapping("/Update")
+	public ModelAndView update(BoardDto boardDto, int nowpage) {
 		
-		// 새글 저장
-		boardPagingMapper.insertBoard(boardDto);
+		// 넘어온 값으로 db 정보 수정
+		boardPagingMapper.updateBoard(boardDto);
 		
-		String menu_id = boardDto.getMenu_id();
-		
-		// 목록으로 돌아가기
-		ModelAndView mv = new ModelAndView();
-		String fmt = "redirect:/BoardPaging/List?menu_id=%s&nowpage=%d";
-		String loc = String.format(fmt, menu_id, nowpage);
-		mv.setViewName(loc);
+		// List 로 돌아간다
+		String        menu_id  =  boardDto.getMenu_id(); 
+		ModelAndView  mv       =  new ModelAndView();
+		String        loc      =  """
+				redirect:/BoardPaging/List?menu_id=%s&nowpage=%d
+				""".formatted(menu_id, nowpage);		
+		mv.setViewName( loc );		
 		return mv;
 	}
-	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

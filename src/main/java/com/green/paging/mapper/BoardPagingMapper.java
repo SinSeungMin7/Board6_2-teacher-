@@ -14,11 +14,15 @@ public interface BoardPagingMapper {
 	List<BoardDto> getBoardPagingList(
 			String menu_id, String searchType, String keyword,
 			int offset, int numOfRows);
-
-	BoardDto getBoard(BoardDto boardDto);
+	
+	BoardDto getBoard( BoardDto boardDto );
 
 	void insertBoard(BoardDto boardDto);
 
 	void incHit(BoardDto boardDto);
+
+	void deleteBoard(BoardDto boardDto);
+
+	void updateBoard(BoardDto boardDto);
 
 }

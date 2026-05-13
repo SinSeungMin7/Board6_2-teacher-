@@ -189,17 +189,25 @@ public class UserController {
 		
 	// 로그인 /Users/Login , userid=, passwd=
 	@RequestMapping("/Login")
-	public  String   login( UserDto userDto, 
-			HttpServletRequest request ) {
+	public  String   login( 
+			UserDto             userDto, 
+			HttpServletRequest  request ) {
 		
-		UserDto      user     =  userMapper.getUser( userDto );
-		
-		HttpSession  session  =  request.getSession();
+		UserDto      user       =  userMapper.getLogin( userDto );
+				
+		HttpSession  session    =  request.getSession();
 		session.setAttribute("login", user);
-
-		String       loc      = session.getAttribute("loc") + "";  // + "" : 앞에있는것을 문자열로 바꿔주는 방법이다(에러를 없애주는 얇팍한 방법)	
 		
-		return  "redirect:" + loc;
+		String  loc = "";
+		// http://localhost:8080/ 즉 "/" 주소가 이전주소일때는 
+		// session.getAttribute("loc) -> null 이다 /Users/null 로 인식
+		if(session.getAttribute("loc") == null )
+			loc = "redirect:/";
+		else
+			loc = "redirect:" + session.getAttribute("loc").toString();
+		System.out.println("loc" + loc);
+	
+		return  loc;
 		
 	}
 	
